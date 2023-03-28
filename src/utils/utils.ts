@@ -1,4 +1,5 @@
 import { tokenMap } from '../service/tokens';
+import { accountMap } from '../service/accounts';
 import { NetworkEnum } from './types';
 
 export const networkOptions = () => {
@@ -8,18 +9,22 @@ export const networkOptions = () => {
   }));
 };
 
-export const tokenOptions = (networkName1: string) => {
-  const networkName = networkName1.toUpperCase();
-  let tokenOptions = [];
-  if (networkName) {
-    const network: NetworkEnum =
-      NetworkEnum[networkName as keyof typeof NetworkEnum];
-    console.log();
-
-    tokenOptions = tokenMap[network].map((token) => ({
-      name: token,
-      value: token,
-    }));
-  }
+export const tokenOptions = (networkName: string) => {
+  const network: NetworkEnum =
+    NetworkEnum[networkName.toUpperCase() as keyof typeof NetworkEnum];
+  const tokenOptions = tokenMap[network].map((token) => ({
+    name: token,
+    value: token,
+  }));
   return tokenOptions;
+};
+
+export const accountOptions = (networkName: string) => {
+  const network: NetworkEnum =
+    NetworkEnum[networkName.toUpperCase() as keyof typeof NetworkEnum];
+  const result = Object.entries(accountMap[network]).map(([name, value]) => ({
+    name,
+    value,
+  }));
+  return result;
 };

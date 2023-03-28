@@ -17,6 +17,12 @@ const setTokenAddress = async (
   }
 };
 
+const setTokenThreshold = async (symbol: string, threshold: number) => {
+  if (await tokenExists(symbol)) {
+    await tokenDB.push(`/${symbol.toUpperCase()}/threshold`, threshold);
+  }
+};
+
 const getToken = async (symbol: string): Promise<TokenMetadata> => {
   if (await tokenExists(symbol)) {
     return await tokenDB.getObject<TokenMetadata>(`/${symbol.toUpperCase()}`);
@@ -61,6 +67,7 @@ const getSupportedTokens = async (network: NetworkEnum) => {
 const TokenDB = {
   setToken,
   setTokenAddress,
+  setTokenThreshold,
   getToken,
   getTokenAddress,
   tokenExists,

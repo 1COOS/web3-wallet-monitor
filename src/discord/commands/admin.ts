@@ -2,7 +2,7 @@ import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { networkOptions } from '../../utils/utils';
 import { addAccount, removeAccount } from '../../service/accounts';
-import { addToken } from '../../service/tokens';
+import { addToken, setTokenThreshold } from '../../service/tokens';
 
 export const command = new SlashCommandBuilder()
   .setName('admin')
@@ -81,23 +81,40 @@ export const command = new SlashCommandBuilder()
               .setDescription('Input token address')
               .setRequired(true),
           ),
+      )
+      .addSubcommand((subcommand) =>
+        subcommand
+          .setName('threshold')
+          .setDescription('Set Token Threshold')
+          .addStringOption((option) =>
+            option
+              .setName('name')
+              .setDescription('Input token symbol')
+              .setRequired(true),
+          )
+          .addStringOption((option) =>
+            option
+              .setName('threshold')
+              .setDescription('Input token threshold')
+              .setRequired(true),
+          ),
       ),
   );
 
 const execute = async (interaction) => {
-  const subCommandGroup = interaction.options.getSubcommandGroup();
-  const subCommand = interaction.options.getSubcommand();
+  const subcommandGroup = interaction.options.getSubcommandGroup();
+  const subcommand = interaction.options.getSubcommand();
   const network = interaction.options.getString('network');
   const address = interaction.options.getString('address');
   const name = interaction.options.getString('name');
 
-  if (subCommandGroup === 'account') {
-    switch (subCommand) {
+  if (subcommandGroup === 'account') {
+    switch (subcommand) {
       case 'add':
         {
           const result = await addAccount(network, address, name);
           const embed = new EmbedBuilder()
-            .setTitle(`Add/Update ${subCommandGroup}`)
+            .setTitle(`Add/Update ${subcommandGroup}`)
             .setDescription(result);
           interaction.reply({ embeds: [embed] });
         }
@@ -106,7 +123,7 @@ const execute = async (interaction) => {
         {
           await removeAccount(network, address);
           const embed = new EmbedBuilder()
-            .setTitle(`Remove ${subCommandGroup}`)
+            .setTitle(`Remove ${subcommandGroup}`)
             .setDescription('Finished');
           interaction.reply({ embeds: [embed] });
         }
@@ -114,13 +131,23 @@ const execute = async (interaction) => {
       default:
         interaction.reply({ content: 'Unknown subcommand.' });
     }
-  } else if (subCommandGroup === 'token') {
-    switch (subCommand) {
+  } else if (subcommandGroup === 'token') {
+    switch (subcommand) {
       case 'add':
         {
           const result = await addToken(network, name, address);
           const embed = new EmbedBuilder()
-            .setTitle(`Add/Update ${subCommandGroup}`)
+            .setTitle(`Add/Update ${subcommandGroup}`)
+            .setDescription(result);
+          interaction.reply({ embeds: [embed] });
+        }
+        break;
+      case 'threshold':
+        {
+          const threshold = interaction.options.getString('threshold');
+          const result = await setTokenThreshold(name, threshold);
+          const embed = new EmbedBuilder()
+            .setTitle(`Set Token Threshold`)
             .setDescription(result);
           interaction.reply({ embeds: [embed] });
         }

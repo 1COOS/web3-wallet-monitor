@@ -20,7 +20,9 @@ const start = async () => {
       return;
     }
     console.log(`Discord bot 【${client.user.tag}】 logs in`);
-    channel = client.channels.cache.get('924295675599011884') as TextChannel;
+    channel = client.channels.cache.get(
+      config.discord.DISCORD_CHANNEL_ID,
+    ) as TextChannel;
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {

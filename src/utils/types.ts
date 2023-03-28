@@ -9,6 +9,7 @@ export interface TokenMetadata {
   logo: string | null;
   name: string;
   symbol: string;
+  threshold?: number;
   address?: {
     [network: string]: string;
   };
@@ -16,7 +17,7 @@ export interface TokenMetadata {
 
 export interface TokenBalance {
   token: string;
-  contractAddress: string;
+  contractAddress?: string;
   account?: string;
   balance: string;
   symbol: string;

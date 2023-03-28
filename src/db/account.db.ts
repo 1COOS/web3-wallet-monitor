@@ -40,6 +40,10 @@ const addressExists = async (
   }
 };
 
+const getAccounts = async (network: NetworkEnum) => {
+  return await accountDB.getData(`/${network}`);
+};
+
 const getAddresses = async (network: NetworkEnum) => {
   const addressesObj = await accountDB.getData(`/${network}`);
   return Object.entries(addressesObj).map(([address]) => address);
@@ -49,6 +53,7 @@ const AccountDB = {
   setAccount,
   removeAccount,
   getName,
+  getAccounts,
   getAddresses,
 };
 export { AccountDB };

@@ -10,14 +10,14 @@ import config from '../utils/config';
 import { send } from '../discord/messager';
 import { getTokenAddresses, getTokenMetadata } from '../service/tokens';
 import { getTokenBalance } from '../service/balances';
-import { getAccounts } from '../service/accounts';
+import { getAddresses } from '../service/accounts';
 import { getName } from '../service/accounts';
 import { TxDB } from '../db/transaction.db';
 
 export const listen = async (network: NetworkEnum) => {
   const tokens = ['usdc', 'matic'];
   const tokenAddresses = await getTokenAddresses(network, tokens);
-  const accounts = await getAccounts(network);
+  const accounts = await getAddresses(network);
 
   const provider = new ethers.providers.WebSocketProvider(
     config.provider[`${network}`],
@@ -38,26 +38,28 @@ export const listen = async (network: NetworkEnum) => {
               tokenMetadata.decimals,
             );
 
-            const [fromBalance, toBalance]: TokenBalance[] =
-              await getTokenBalance(network, [from, to], symbol);
+            if (Number(amount) >= tokenMetadata.threshold) {
+              const [fromBalance, toBalance]: TokenBalance[] =
+                await getTokenBalance(network, [from, to], symbol);
 
-            const tx: TransactionOptions = {
-              from,
-              to,
-              amount,
-              token: symbol,
-              hash: event.transactionHash,
-              fromBalance: Number(fromBalance.balance).toFixed(2),
-              toBalance: Number(toBalance.balance).toFixed(2),
-            };
+              const tx: TransactionOptions = {
+                from,
+                to,
+                amount,
+                token: symbol,
+                hash: event.transactionHash,
+                fromBalance: Number(fromBalance.balance).toFixed(2),
+                toBalance: Number(toBalance.balance).toFixed(2),
+              };
 
-            await send(network, tokenMetadata, tx);
+              await send(network, tokenMetadata, tx);
 
-            const info = ` [${amount}] ${await getName(
-              network,
-              from,
-            )} -> ${await getName(network, to)}`;
-            TxDB.add(network, symbol, info);
+              const info = ` [${amount}] ${await getName(
+                network,
+                from,
+              )} -> ${await getName(network, to)}`;
+              TxDB.add(network, symbol, info);
+            }
           }
         });
       } catch (e) {

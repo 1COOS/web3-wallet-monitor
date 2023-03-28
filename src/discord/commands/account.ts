@@ -6,21 +6,29 @@ import {
 
 import { NetworkEnum } from '../../utils/types';
 import { tokenOptions } from '../../utils/utils';
-import { getName } from '../../service/accounts';
-import { getTokenBalances } from '../../service/tokens';
+import { getAccounts, getName } from '../../service/accounts';
+import { getTokensBalance } from '../../service/balances';
 
-let networkGroup: SlashCommandSubcommandGroupBuilder;
+let balanceGroup: SlashCommandSubcommandGroupBuilder,
+  listGroup: SlashCommandSubcommandGroupBuilder;
 
 export const command = new SlashCommandBuilder()
   .setName('account')
   .setDescription('Account info')
   .addSubcommandGroup((group) => {
-    networkGroup = group;
+    listGroup = group;
+    return group.setName('list').setDescription('list group');
+  })
+  .addSubcommandGroup((group) => {
+    balanceGroup = group;
     return group.setName('balance').setDescription('balance group');
   });
 
 Object.values(NetworkEnum).forEach((network) => {
-  networkGroup.addSubcommand((subcommand) =>
+  listGroup.addSubcommand((subcommand) =>
+    subcommand.setName(network.toLowerCase()).setDescription(`List accounts`),
+  );
+  balanceGroup.addSubcommand((subcommand) =>
     subcommand
       .setName(network.toLowerCase())
       .setDescription(`Check balance for account `)
@@ -30,38 +38,44 @@ Object.values(NetworkEnum).forEach((network) => {
           .setDescription('Select token')
           .setRequired(true)
           .addChoices(...tokenOptions(subcommand.name)),
-      )
-      .addStringOption(
-        (option) =>
-          option.setName('address').setDescription('Input account address'),
-        // .setRequired(true),
       ),
   );
 });
 
 const execute = async (interaction) => {
+  const subCommandGroup = interaction.options.getSubcommandGroup();
   const subcommand = interaction.options.getSubcommand();
   const network = subcommand.toUpperCase();
 
-  const address =
-    interaction.options.getString('address') ||
-    '0x6E6F687014d1b784f19F9C47511A20C37022C2F3';
+  if (subCommandGroup === 'list') {
+    const result = await getAccounts(network);
+    console.log(result);
+    const embed = new EmbedBuilder().setTitle(`${network} Account List`);
 
-  const token = interaction.options.getString('token');
+    Object.entries(result).forEach(([address, name]) => {
+      embed.addFields({
+        name: `${address}`,
+        value: `${name}`,
+      });
+    });
 
-  const [balance] = await getTokenBalances(network, address, [token]);
-  const accountName = await getName(network, address);
-  const embed = new EmbedBuilder()
-    .setColor(Colors.Gold)
-    .setAuthor({
-      name: `${balance.balance} ${balance.symbol}`,
-      iconURL: balance.logo,
-    })
-    .setDescription(`Balance of ${accountName} on ${network}`);
+    interaction.reply({ embeds: [embed] });
+  } else if (subCommandGroup === 'balance') {
+    const address = interaction.options.getString('address');
+    const token = interaction.options.getString('token');
 
-  interaction.reply({ embeds: [embed] });
+    const [balance] = await getTokensBalance(network, address, [token]);
+    const accountName = await getName(network, address);
+    const embed = new EmbedBuilder()
+      .setColor(Colors.Gold)
+      .setAuthor({
+        name: `${balance.balance} ${balance.symbol}`,
+        iconURL: balance.logo,
+      })
+      .setDescription(`Balance of ${accountName} on ${network}`);
+
+    interaction.reply({ embeds: [embed] });
+  }
 };
 
 export default { command, execute };
-
-
