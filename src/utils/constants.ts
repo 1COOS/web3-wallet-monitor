@@ -47,4 +47,12 @@ const Tokens = {
   },
 };
 
-export { Constants, Tokens };
+const DiscordConstants = {
+  PROMPT_STRING: 'prompt',
+  Commands: {
+    ADMIN: 'admin',
+    ACCOUNT: 'account',
+  },
+};
+
+export { Constants, Tokens, DiscordConstants };

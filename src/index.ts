@@ -1,5 +1,6 @@
 import { NetworkEnum } from './utils/types';
 
-// import './handler/balances';
-// import './handler/accounts';
-import './listener/index';
+import './discord';
+import { listen } from './listener';
+import './service/balances';
+await listen(NetworkEnum.MUMBAI);

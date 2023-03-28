@@ -1,13 +1,18 @@
 import { ethers } from 'ethers';
-import { getTokenAddresses, getTokenMetadata } from '../handler/tokens';
-import { getAccounts } from '../handler/accounts';
-import { webhook } from '../discord/webhook';
 import { ERC20Abi } from '../utils/contract';
-import { NetworkEnum, TokenOptions } from '../utils/types';
-import { getName } from '../handler/accounts';
-import { TxDB } from '../db/transaction.db';
-
+import {
+  NetworkEnum,
+  TokenBalance,
+  TokenMetadata,
+  TransactionOptions,
+} from '../utils/types';
 import config from '../utils/config';
+import { send } from '../discord/messager';
+import { getTokenAddresses, getTokenMetadata } from '../service/tokens';
+import { getTokenBalance } from '../service/balances';
+import { getAccounts } from '../service/accounts';
+import { getName } from '../service/accounts';
+import { TxDB } from '../db/transaction.db';
 
 export const listen = async (network: NetworkEnum) => {
   const tokens = ['usdc', 'matic'];
@@ -25,12 +30,28 @@ export const listen = async (network: NetworkEnum) => {
       console.log(symbol, address);
       try {
         contract.on('Transfer', async (from, to, value, event) => {
+          console.log('event', event);
           if (accounts.includes(from) || accounts.includes(to)) {
-            const tokenMetadata: TokenOptions = await getTokenMetadata(symbol);
-            console.log(tokenMetadata);
-            const { logo, decimals } = tokenMetadata;
+            const tokenMetadata: TokenMetadata = await getTokenMetadata(symbol);
+            const amount = ethers.utils.formatUnits(
+              value.toString(),
+              tokenMetadata.decimals,
+            );
 
-            const amount = ethers.utils.formatUnits(value.toString(), decimals);
+            const [fromBalance, toBalance]: TokenBalance[] =
+              await getTokenBalance(network, [from, to], symbol);
+
+            const tx: TransactionOptions = {
+              from,
+              to,
+              amount,
+              token: symbol,
+              hash: event.transactionHash,
+              fromBalance: Number(fromBalance.balance).toFixed(2),
+              toBalance: Number(toBalance.balance).toFixed(2),
+            };
+
+            await send(network, tokenMetadata, tx);
 
             const info = ` [${amount}] ${await getName(
               network,
@@ -46,5 +67,3 @@ export const listen = async (network: NetworkEnum) => {
     });
   }
 };
-
-await listen(NetworkEnum.MUMBAI);

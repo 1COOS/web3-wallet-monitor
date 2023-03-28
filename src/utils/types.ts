@@ -4,20 +4,33 @@ export enum NetworkEnum {
   MUMBAI = 'MUMBAI',
 }
 
+export interface TokenMetadata {
+  decimals: number;
+  logo: string | null;
+  name: string;
+  symbol: string;
+  address?: {
+    [network: string]: string;
+  };
+}
+
 export interface TokenBalance {
   token: string;
   contractAddress: string;
   account?: string;
-  balance: number;
+  balance: string;
   symbol: string;
   logo: string;
 }
 
-export interface TokenOptions {
-  symbol: string;
-  name: string;
-  decimals: number;
-  logo?: string;
+export interface TransactionOptions {
+  hash: string;
+  from: string;
+  to: string;
+  token: string;
+  amount: string;
+  fromBalance?: string;
+  toBalance?: string;
 }
 
 export interface EmbedOptions {

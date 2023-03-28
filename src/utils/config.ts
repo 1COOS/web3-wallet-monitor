@@ -1,6 +1,4 @@
 import { config } from 'dotenv';
-import fs from 'fs';
-import YAML from 'yaml';
 import { Constants } from './constants';
 
 config({ path: '.env' });

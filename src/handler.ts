@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       symbol: 'ETH',
       logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
       decimals: 18,
-      balance: parsedEthBalance.toPrecision(2),
+      balance: parsedEthBalance.toFixed(2),
       address: '0x',
     };
     const fetchedTokenBalances = fetchedTokens.tokenBalances.map(
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
             symbol,
             logo,
             decimals,
-            balance: convertedBalance.toPrecision(2),
+            balance: convertedBalance.toFixed(2),
             address,
           };
           unifiedBalancedAndMetadata.push(tokenBalanceAndMetadata);

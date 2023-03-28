@@ -12,11 +12,16 @@ const setAccount = async (
   await accountDB.push(`/${network}/${ethers.utils.getAddress(address)}`, name);
 };
 
+const removeAccount = async (network: NetworkEnum, address: string) => {
+  await accountDB.delete(`/${network}/${ethers.utils.getAddress(address)}`);
+};
+
 const getName = async (
   network: NetworkEnum,
   address: string,
 ): Promise<string> => {
   const addr = ethers.utils.getAddress(address);
+  console.log(addr, network);
   if (await addressExists(network, addr)) {
     return await accountDB.getObject(`/${network}/${addr}`);
   }
@@ -42,6 +47,7 @@ const getAddresses = async (network: NetworkEnum) => {
 
 const AccountDB = {
   setAccount,
+  removeAccount,
   getName,
   getAddresses,
 };

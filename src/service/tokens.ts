@@ -1,21 +1,28 @@
 import { TokenDB } from '../db/token.db';
 import { getAlchemy } from '../utils/alchemy';
-import { NetworkEnum, TokenOptions, TokenBalance } from '../utils/types';
+import { NetworkEnum, TokenMetadata, TokenBalance } from '../utils/types';
 import { Tokens } from '../utils/constants';
+
+export const tokenMap = {};
 
 export const addToken = async (
   network: NetworkEnum,
   token: string,
   tokenAddress: string,
-) => {
-  let metadata = await getTokenMetadata(token);
-  console.log('m1', metadata);
-  if (!metadata) {
-    metadata = await fetchTokenMetadata(network, tokenAddress);
-    console.log('m2', metadata);
-    await TokenDB.setToken(metadata.symbol, metadata);
+): Promise<string> => {
+  try {
+    let metadata = await getTokenMetadata(token);
+    console.log('m1', metadata);
+    if (!metadata) {
+      metadata = await fetchTokenMetadata(network, tokenAddress);
+      console.log('m2', metadata);
+      await TokenDB.setToken(metadata.symbol, metadata);
+    }
+    await TokenDB.setTokenAddress(network, metadata.symbol, tokenAddress);
+    return `Add token ${token} on  ${network} successfully`;
+  } catch (error) {
+    return error.reason;
   }
-  await TokenDB.setTokenAddress(network, metadata.symbol, tokenAddress);
 };
 
 export const getTokenAddresses = async (
@@ -32,7 +39,7 @@ export const getTokenAddresses = async (
 
 export const getTokenMetadata = async (
   token: string,
-): Promise<TokenOptions> => {
+): Promise<TokenMetadata> => {
   return await TokenDB.getToken(token);
 };
 
@@ -42,6 +49,7 @@ export const getTokenBalances = async (
   tokens: string[],
 ): Promise<TokenBalance[]> => {
   const alchemy = getAlchemy(network);
+  console.log(network, account, tokens);
   const tokenAddresses = await getTokenAddresses(network, tokens);
 
   const tokenBalances: TokenBalance[] = [];
@@ -52,7 +60,7 @@ export const getTokenBalances = async (
     );
     await Promise.all(
       fetchedTokens.tokenBalances.map(async (item, i) => {
-        const tokenMetadata: TokenOptions = await getTokenMetadata(tokens[i]);
+        const tokenMetadata: TokenMetadata = await getTokenMetadata(tokens[i]);
         const { symbol, logo, decimals } = tokenMetadata;
 
         const hexBalance = item.tokenBalance;
@@ -62,8 +70,9 @@ export const getTokenBalances = async (
 
           const tokenBalance: TokenBalance = {
             contractAddress: item.contractAddress,
-            balance: convertedBalance,
+            balance: convertedBalance.toFixed(2),
             token: tokens[i],
+            account,
             symbol,
             logo,
           };
@@ -74,6 +83,17 @@ export const getTokenBalances = async (
   }
   return tokenBalances;
 };
+
+export const refreshTokenMap = async () => {
+  console.log('refreshing token map');
+  await Promise.all(
+    Object.values(NetworkEnum).map(async (network) => {
+      const tokens = await TokenDB.getSupportedTokens(network);
+      tokenMap[network] = tokens;
+    }),
+  );
+};
+await refreshTokenMap();
 
 export const initTokens = async () => {
   const defaultTokens = ['matic', 'usdc', 'usdt'];
@@ -91,7 +111,7 @@ export const getETHBalance = async () => {
   //   symbol: 'ETH',
   //   logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
   //   decimals: 18,
-  //   balance: parsedEthBalance.toPrecision(2),
+  //   balance: parsedEthBalance.toFixed(2),
   //   address: '0x',
   // };
   // const unifiedBalancedAndMetadata = [ethBalanceObject];
