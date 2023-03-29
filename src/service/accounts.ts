@@ -52,4 +52,3 @@ export const refreshAccountMap = async () => {
     }),
   );
 };
-await refreshAccountMap();

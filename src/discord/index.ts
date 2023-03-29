@@ -52,6 +52,7 @@ const start = async () => {
   await registerCommands();
 };
 
+
 start().catch((err) => {
   console.error(err);
 });

@@ -2,6 +2,8 @@ import { JsonDB, Config } from 'node-json-db';
 import dayjs from 'dayjs';
 import { NetworkEnum } from '../utils/types';
 
+const configDB = new JsonDB(new Config('db/tx.config.json', true, true, '/'));
+
 const txMainnetDB = new JsonDB(
   new Config('db/tx.mainnet.json', true, true, '/'),
 );
@@ -9,6 +11,10 @@ const txPolygonDB = new JsonDB(
   new Config('db/tx.polygon.json', true, true, '/'),
 );
 const txMumbaiDB = new JsonDB(new Config('db/tx.mumbai.json', true, true, '/'));
+
+const setListener = async (network: NetworkEnum, tokens: string[]) => {
+  await configDB.push(`/listener/${network}`, tokens);
+};
 
 const add = async (network: NetworkEnum, symbol: string, info: string) => {
   let txDB;
@@ -32,5 +38,6 @@ const add = async (network: NetworkEnum, symbol: string, info: string) => {
 
 const TxDB = {
   add,
+  setListener,
 };
 export { TxDB };

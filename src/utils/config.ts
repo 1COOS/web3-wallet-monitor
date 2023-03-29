@@ -1,12 +1,5 @@
 import { config } from 'dotenv';
-import fs from 'fs';
-import YAML from 'yaml';
 import { Constants } from './constants';
-
-let configPath = '/config/config.yaml';
-if (!fs.existsSync(configPath)) {
-  configPath = 'config.yaml';
-}
 
 config({ path: '.env' });
 

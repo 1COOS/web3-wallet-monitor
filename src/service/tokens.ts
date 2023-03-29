@@ -1,7 +1,6 @@
 import { TokenDB } from '../db/token.db';
 import { getAlchemy } from '../utils/alchemy';
 import { NetworkEnum, TokenMetadata } from '../utils/types';
-import { Tokens } from '../utils/constants';
 
 export const tokenMap = {};
 
@@ -15,8 +14,8 @@ export const addToken = async (
     if (!metadata) {
       metadata = await fetchTokenMetadata(network, tokenAddress);
       metadata.threshold = 1;
-      await TokenDB.setToken(metadata.symbol, metadata);
     }
+    await TokenDB.setToken(metadata.symbol, metadata);
     await TokenDB.setTokenAddress(network, metadata.symbol, tokenAddress);
     await refreshTokenMap();
     return `Add token ${token} on ${network} successfully`;
@@ -64,17 +63,6 @@ export const refreshTokenMap = async () => {
     }),
   );
 };
-await refreshTokenMap();
-
-export const initTokens = async () => {
-  const defaultTokens = ['matic', 'usdc', 'usdt'];
-  const network = NetworkEnum.POLYGON;
-  await Promise.all(
-    defaultTokens.map(async (token) => {
-      await addToken(network, token, Tokens[token.toUpperCase()][network]);
-    }),
-  );
-};
 
 const fetchTokenMetadata = async (
   network: NetworkEnum,
@@ -84,3 +72,4 @@ const fetchTokenMetadata = async (
   const metadata = await alchemy.core.getTokenMetadata(tokenAddress);
   return metadata;
 };
+// await refreshTokenMap();

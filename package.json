@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "tsc-watch --noClear --onSuccess \"npm run start\"",
     "build": "tsc",
+    "setup": "npm run build && node --experimental-specifier-resolution=node --loader ts-node/esm dist/utils/init.js",
     "start": "node --experimental-specifier-resolution=node --loader ts-node/esm dist/index.js",
     "start:pm2": "pm2 start npm --name rss-bot -- start ",
     "run": "npm run build && npm run start",
@@ -33,6 +34,7 @@
     "dotenv": "^16.0.3",
     "ethers": "5.7.2",
     "node-json-db": "^2.1.4",
+    "p-limit": "^4.0.0",
     "yaml": "^2.2.1"
   },
   "husky": {

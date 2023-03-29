@@ -14,8 +14,7 @@ import { getAddresses } from '../service/accounts';
 import { getName } from '../service/accounts';
 import { TxDB } from '../db/transaction.db';
 
-export const listen = async (network: NetworkEnum) => {
-  const tokens = ['usdc', 'matic'];
+export const listen = async (network: NetworkEnum, tokens: string[]) => {
   const tokenAddresses = await getTokenAddresses(network, tokens);
   const accounts = await getAddresses(network);
 
@@ -27,10 +26,9 @@ export const listen = async (network: NetworkEnum) => {
     tokenAddresses.forEach(async (address) => {
       const contract = new ethers.Contract(address, ERC20Abi, provider);
       const symbol = await contract.symbol();
-      console.log(symbol, address);
+
       try {
         contract.on('Transfer', async (from, to, value, event) => {
-          console.log('event', event);
           if (accounts.includes(from) || accounts.includes(to)) {
             const tokenMetadata: TokenMetadata = await getTokenMetadata(symbol);
             const amount = ethers.utils.formatUnits(
