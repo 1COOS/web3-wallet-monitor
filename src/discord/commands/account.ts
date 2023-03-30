@@ -4,7 +4,7 @@ import {
   SlashCommandSubcommandGroupBuilder,
 } from '@discordjs/builders';
 
-import { NetworkEnum } from '../../utils/types';
+import { NetworkEnum } from '../../utils/network';
 import { tokenOptions } from '../../utils/utils';
 import { getAccounts, getName } from '../../service/accounts';
 import { getTokensBalance } from '../../service/balances';

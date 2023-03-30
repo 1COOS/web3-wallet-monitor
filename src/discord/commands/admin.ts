@@ -3,6 +3,8 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { networkOptions } from '../../utils/utils';
 import { addAccount, removeAccount } from '../../service/accounts';
 import { addToken, setTokenThreshold } from '../../service/tokens';
+import { getListenTokens, setListenTokens } from '../../service/transactions';
+import { reset } from '../../listener/listener';
 
 export const command = new SlashCommandBuilder()
   .setName('admin')
@@ -99,6 +101,41 @@ export const command = new SlashCommandBuilder()
               .setRequired(true),
           ),
       ),
+  )
+  .addSubcommandGroup((group) =>
+    group
+      .setName('listener')
+      .setDescription('listener group')
+      .addSubcommand((subcommand) =>
+        subcommand
+          .setName('set')
+          .setDescription('Set listeners')
+          .addStringOption((option) =>
+            option
+              .setName('network')
+              .setDescription('Select network')
+              .setRequired(true)
+              .addChoices(...networkOptions()),
+          )
+          .addStringOption((option) =>
+            option
+              .setName('tokens')
+              .setDescription("Input tokens, split with ','")
+              .setRequired(true),
+          ),
+      )
+      .addSubcommand((subcommand) =>
+        subcommand
+          .setName('get')
+          .setDescription('Get listeners')
+          .addStringOption((option) =>
+            option
+              .setName('network')
+              .setDescription('Select network')
+              .setRequired(true)
+              .addChoices(...networkOptions()),
+          ),
+      ),
   );
 
 const execute = async (interaction) => {
@@ -149,6 +186,32 @@ const execute = async (interaction) => {
           const embed = new EmbedBuilder()
             .setTitle(`Set Token Threshold`)
             .setDescription(result);
+          interaction.reply({ embeds: [embed] });
+        }
+        break;
+      default:
+        interaction.reply({ content: 'Unknown subcommand.' });
+    }
+  } else if (subcommandGroup === 'listener') {
+    switch (subcommand) {
+      case 'set':
+        {
+          const inputTokens = interaction.options.getString('tokens');
+          const tokens = inputTokens.split(',').map((item) => item.trim());
+          const result = await setListenTokens(network, tokens);
+          await reset(network, tokens);
+          const embed = new EmbedBuilder()
+            .setTitle(`Set listen tokens on ${subcommandGroup}`)
+            .setDescription(result);
+          interaction.reply({ embeds: [embed] });
+        }
+        break;
+      case 'get':
+        {
+          const result = await getListenTokens(network);
+          const embed = new EmbedBuilder()
+            .setTitle(`Listen tokens on ${network}`)
+            .setDescription(result.toString());
           interaction.reply({ embeds: [embed] });
         }
         break;

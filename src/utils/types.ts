@@ -1,9 +1,3 @@
-export enum NetworkEnum {
-  MAINNET = 'MAINNET',
-  POLYGON = 'POLYGON',
-  MUMBAI = 'MUMBAI',
-}
-
 export interface TokenMetadata {
   decimals: number;
   logo: string | null;

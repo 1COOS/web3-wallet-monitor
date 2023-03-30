@@ -1,9 +1,10 @@
-import { NetworkEnum, TokenMetadata, TransactionOptions } from '../utils/types';
+import { TokenMetadata, TransactionOptions } from '../utils/types';
 import { channel } from './index';
 
 import config from '../utils/config';
 import { Colors, EmbedBuilder } from 'discord.js';
 import { getName } from '../service/accounts';
+import { NetworkEnum } from '../utils/network';
 
 export const send = async (
   network: NetworkEnum,

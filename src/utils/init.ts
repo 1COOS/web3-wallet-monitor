@@ -3,8 +3,8 @@ import YAML from 'yaml';
 import pLimit from 'p-limit';
 import { addToken } from '../service/tokens';
 import { addAccount } from '../service/accounts';
-import { NetworkEnum } from './types';
-import { setListener } from '../service/transactions';
+import { NetworkEnum } from './network';
+import { setListenTokens } from '../service/transactions';
 
 let configPath = '/config/config.yaml';
 if (!fs.existsSync(configPath)) {
@@ -52,7 +52,7 @@ const parseConfig = async () => {
         listenTokens[network].push(symbol);
       }
     }
-    await setListener(
+    await setListenTokens(
       NetworkEnum[network.toUpperCase() as keyof typeof NetworkEnum],
       listenTokens[network],
     );

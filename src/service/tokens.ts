@@ -1,6 +1,7 @@
 import { TokenDB } from '../db/token.db';
-import { getAlchemy } from '../utils/alchemy';
-import { NetworkEnum, TokenMetadata } from '../utils/types';
+import { NetworkEnum } from '../utils/network';
+import { getAlchemy } from '../utils/provider';
+import { TokenMetadata } from '../utils/types';
 
 export const tokenMap = {};
 
@@ -72,4 +73,5 @@ const fetchTokenMetadata = async (
   const metadata = await alchemy.core.getTokenMetadata(tokenAddress);
   return metadata;
 };
-// await refreshTokenMap();
+
+await refreshTokenMap();

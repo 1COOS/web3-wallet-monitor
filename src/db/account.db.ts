@@ -1,6 +1,6 @@
 import { JsonDB, Config } from 'node-json-db';
 import { ethers } from 'ethers';
-import { NetworkEnum } from '../utils/types';
+import { NetworkEnum } from '../utils/network';
 
 const accountDB = new JsonDB(new Config('db/accounts.json', true, true, '/'));
 

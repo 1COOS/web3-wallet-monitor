@@ -1,5 +1,6 @@
-import { getAlchemy } from '../utils/alchemy';
-import { NetworkEnum, TokenMetadata, TokenBalance } from '../utils/types';
+import { NetworkEnum } from '../utils/network';
+import { getAlchemy } from '../utils/provider';
+import { TokenMetadata, TokenBalance } from '../utils/types';
 import { getTokenAddresses, getTokenMetadata } from './tokens';
 
 export const getTokensBalance = async (

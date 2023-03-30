@@ -35,23 +35,16 @@ const start = async () => {
     //   return;
     // }
     const user = message.author;
-    // console.log(message);
     console.log('----Direct Message---');
     console.log('Date    : ' + new Date());
     console.log('UserId  : ' + user.id);
     console.log('User    : ' + user.username);
     console.log('Message : ' + message.content);
     console.log('--------------');
-
-    // if (message.mentions.has(client.user.id)) {
-    //   const response = await chatGPTReply(message.content, user.id);
-    //   await message.reply(response);
-    // }
   });
   client.login(config.discord.DISCORD_BOT_TOKEN);
   await registerCommands();
 };
-
 
 start().catch((err) => {
   console.error(err);

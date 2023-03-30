@@ -1,5 +1,5 @@
 import { AccountDB } from '../db/account.db';
-import { NetworkEnum } from '../utils/types';
+import { NetworkEnum } from '../utils/network';
 
 export const accountMap = {};
 
@@ -52,3 +52,5 @@ export const refreshAccountMap = async () => {
     }),
   );
 };
+
+await refreshAccountMap();

@@ -1,5 +1,6 @@
 import { JsonDB, Config } from 'node-json-db';
-import { NetworkEnum, TokenMetadata } from '../utils/types';
+import { NetworkEnum } from '../utils/network';
+import { TokenMetadata } from '../utils/types';
 
 const tokenDB = new JsonDB(new Config('db/tokens.json', true, true, '/'));
 

@@ -3,10 +3,9 @@ import AdminCommand from './commands/admin';
 import AccountCommand from './commands/account';
 import config from '../utils/config';
 import { DiscordConstants } from '../utils/constants';
-import { refreshAccountMap } from '../service/accounts';
-import { refreshTokenMap } from '../service/tokens';
 
 export const registerCommands = async () => {
+
   const rest = new REST({ version: '10' }).setToken(
     config.discord.DISCORD_BOT_TOKEN,
   );
@@ -40,6 +39,3 @@ export const handleMessage = async (interaction) => {
     }
   }
 };
-
-await refreshTokenMap();
-await refreshAccountMap();
