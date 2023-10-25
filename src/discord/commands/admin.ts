@@ -197,7 +197,9 @@ const execute = async (interaction) => {
       case 'set':
         {
           const inputTokens = interaction.options.getString('tokens');
-          const tokens = inputTokens.split(',').map((item) => item.trim());
+          const tokens = inputTokens
+            .split(',')
+            .map((item) => item.trim().toUpperCase());
           const result = await setListenTokens(network, tokens);
           await reset(network, tokens);
           const embed = new EmbedBuilder()

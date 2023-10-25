@@ -3,15 +3,17 @@ import YAML from 'yaml';
 import pLimit from 'p-limit';
 import { addToken } from '../service/tokens';
 import { addAccount } from '../service/accounts';
-import { NetworkEnum } from './network';
+import { NetworkEnum } from '../utils/network';
 import { setListenTokens } from '../service/transactions';
 
-let configPath = '/config/config.yaml';
-if (!fs.existsSync(configPath)) {
-  configPath = 'config.yaml';
-}
-const file = fs.readFileSync(configPath, 'utf8');
-const y = YAML.parse(file);
+const init = async () => {
+  const txConfigPath = 'db/tx.config.json';
+  if (!fs.existsSync(txConfigPath)) {
+    await parseConfig();
+    await initTokens();
+    await initAccounts();
+  }
+};
 
 type NetworkType = {
   tokens: {
@@ -31,12 +33,19 @@ type TokenObject = {
   [symbol: string]: string;
 };
 
-const initData: { [name: string]: NetworkType } = y.networks;
 const defaultTokens: { [network: string]: TokenObject[] } = {};
 const listenTokens: { [network: string]: string[] } = {};
 const listenAccounts: { [network: string]: AccountObject[] } = {};
 
 const parseConfig = async () => {
+  let configPath = '/config/config.yaml';
+  if (!fs.existsSync(configPath)) {
+    configPath = 'config.yaml';
+  }
+  const file = fs.readFileSync(configPath, 'utf8');
+  const y = YAML.parse(file);
+  const initData: { [name: string]: NetworkType } = y.networks;
+
   for (const network in initData) {
     const tokens = initData[network].tokens;
     const accounts = initData[network].accounts;
@@ -107,6 +116,4 @@ const initAccounts = async () => {
   });
 };
 
-await parseConfig();
-await initTokens();
-await initAccounts();
+await init();
